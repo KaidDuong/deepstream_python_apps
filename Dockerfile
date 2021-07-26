@@ -6,7 +6,8 @@ RUN apt-get update --fix-missing && apt-get install -y \
    python3-dev \
    python3-pip \
    python3-setuptools \
-   python-gi \
+   python3-gi \
+   python3-gst-1.0 \
    python3-opencv \
    python3-numpy -y \
    && apt-get clean && rm -rf /var/lib/apt/lists/*
