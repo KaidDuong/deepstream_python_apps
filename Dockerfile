@@ -3,21 +3,12 @@ FROM ${BASE_IMAGE}
 
 # Install dependencies
 RUN apt-get update --fix-missing && apt-get install -y \
-   ca-certificates \
-   build-essential \
-   autoconf libtool \
-   python3 \
    python3-dev \
    python3-pip \
    python3-setuptools \
-   python-gi-dev \
-   libgstreamer1.0-dev \
+   python-gi \
    python3-opencv \
-   libgstrtspserver-1.0-0 \
-   gstreamer1.0-rtsp \
-   libgirepository1.0-dev \
-   gobject-introspection \
-   gir1.2-gst-rtsp-server-1.0 \
+   python3-numpy -y \
    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY apps /apps
