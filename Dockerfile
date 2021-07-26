@@ -20,7 +20,7 @@ RUN apt-get update --fix-missing && apt-get install -y \
    gir1.2-gst-rtsp-server-1.0 \
    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-COPY apps /
+COPY apps /apps
 # Set the WORKDIR and default ENTRYPOINT command
 # Unfortunately the base container sets an ENTRYPOINT, not a CMD, so it is a
 # very awkward to use this container except as a shell command.
