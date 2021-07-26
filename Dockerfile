@@ -12,7 +12,8 @@ RUN apt-get update --fix-missing && apt-get install -y \
    python3-setuptools \
    python-gi-dev \
    libgstreamer1.0-dev \
-   python3-openclibgstrtspserver-1.0-0 \
+   python3-opencv \
+   libgstrtspserver-1.0-0 \
    gstreamer1.0-rtsp \
    libgirepository1.0-dev \
    gobject-introspection \
