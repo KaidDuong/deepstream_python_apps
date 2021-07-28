@@ -61,13 +61,14 @@
 force-implicit-batch-dim=1
 gpu-id=0
 net-scale-factor=0.0039215697906911373
-model-engine-file=yolov5.engine
+model-engine-file=yolov5m.engine
+#onnx-file=yolov5s.onnx
 #labelfile-path=/opt/nvidia/deepstream/deepstream-5.1/samples/models/Primary_Detector/labels.txt
 batch-size=1
 process-mode=1
 model-color-format=0
 network-mode=1
-num-detected-classes=5
+num-detected-classes=4
 interval=0
 gie-unique-id=1
 output-blob-names=conv2d_bbox;conv2d_cov/Sigmoid
