@@ -86,10 +86,7 @@ SHOW_FRAMES = 'no'  # Default is to show
 OUTPUT_WIDTH = 1200 # Output video width
 OUTPUT_HEIGHT = 600 # Output video height
 
-# Debug print on/off (there are better ways to do this)
-def print(s):
-  print(s)
-  pass
+
 #
 # This is support code for the RTSP stream input element
 #
