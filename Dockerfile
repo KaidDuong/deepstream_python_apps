@@ -17,5 +17,5 @@ COPY apps /opt/nvidia/deepstream/deepstream-5.1/sources/python_apps/apps
 # Unfortunately the base container sets an ENTRYPOINT, not a CMD, so it is a
 # very awkward to use this container except as a shell command.
 # To do development, uncomment the 2 lines below, and comment the other two.
-WORKDIR /outside
+WORKDIR /opt/nvidia/deepstream/deepstream-5.1/sources/python_apps/apps
 ENTRYPOINT /bin/bash
