@@ -46,12 +46,6 @@
 # to create your own Deepstream application.
 #
 
-# Debug print on/off (there are better ways to do this)
-def debug(s):
-    # print(s)
-    pass
-
-
 # When you edit the source you may need to also edit this CONFIG_FILE (here
 # in the same directory with this source file). It contains configuration
 # arguments for the inferencing "element" in the pipeline, and anything else
@@ -93,8 +87,8 @@ OUTPUT_WIDTH = 1200 # Output video width
 OUTPUT_HEIGHT = 600 # Output video height
 
 # Debug print on/off (there are better ways to do this)
-def debug(s):
-  # print(s)
+def print(s):
+  print(s)
   pass
 #
 # This is support code for the RTSP stream input element
@@ -106,7 +100,7 @@ def debug(s):
 #    /opt/nvidia/deepstream/deepstream-5.0/sources/python/apps/deepstream-imagedata-multistream
 #
 def cb_newpad(decodebin, decoder_src_pad, data):
-    debug("In cb_newpad")
+    print("In cb_newpad")
     caps = decoder_src_pad.get_current_caps()
     gststruct = caps.get_structure(0)
     gstname = gststruct.get_name()
@@ -131,21 +125,21 @@ def cb_newpad(decodebin, decoder_src_pad, data):
 
 
 def decodebin_child_added(child_proxy, Object, name, user_data):
-    debug("Decodebin child added:" + name)
+    print("Decodebin child added:" + name)
     if (name.find("decodebin") != -1):
         Object.connect("child-added", decodebin_child_added, user_data)
     if (is_aarch64() and name.find("nvv4l2decoder") != -1):
-        debug("Seting bufapi_version")
+        print("Seting bufapi_version")
         Object.set_property("bufapi-version", True)
 
 
 def create_source_bin(index, uri):
-    debug("Creating source bin")
+    print("Creating source bin")
 
     # Create a source GstBin to abstract this bin's content from the rest of the
     # pipeline
     bin_name = "source-bin-%02d" % index
-    debug(bin_name)
+    print(bin_name)
     nbin = Gst.Bin.new(bin_name)
     if not nbin:
         sys.stderr.write("ERROR: Unable to create source bin")
@@ -215,7 +209,7 @@ def osd_sink_pad_buffer_probe(pad, info, u_data):
 
     gst_buffer = info.get_buffer()
     if not gst_buffer:
-        debug("Unable to get GstBuffer ")
+        print("Unable to get GstBuffer ")
         return
 
     # Retrieve batch metadata from the gst_buffer
@@ -373,7 +367,7 @@ def main(args):
     Gst.init(None)
 
     # Create the GStreamer pipeline object that will connect the elements
-    debug("Creating Pipeline ")
+    print("Creating Pipeline ")
     pipeline = Gst.Pipeline()
     if not pipeline:
         sys.stderr.write("ERROR: Unable to create Pipeline\n")
@@ -384,7 +378,7 @@ def main(args):
     #########################################################################
 
     # NOTE: An alternate option here could be a file as an input source:
-    # debug("Creating an element that uses a file as an input source")
+    # print("Creating an element that uses a file as an input source")
     # source = Gst.ElementFactory.make("filesrc", "file-source")
     # if not source:
     #    sys.stderr.write("ERROR: Unable to create file input element!\n")
@@ -419,7 +413,7 @@ def main(args):
     #
 
     # Multiplexing element with bins to read from multiple RTSP input streams
-    debug("Creating elements to receive RTSP streams as the video input")
+    print("Creating elements to receive RTSP streams as the video input")
 
     # Create nvstreammux instance to form batches from one or more sources.
     streammux = Gst.ElementFactory.make("nvstreammux", "Stream-muxer")
@@ -463,13 +457,13 @@ def main(args):
         # Link the source pad on this bin to the sink pad in streammux
         srcpad.link(sinkpad)
 
-    debug("All input source elements have been added to the pipeline")
+    print("All input source elements have been added to the pipeline")
 
     #########################################################################
     # The next element in the pipeline does the inferencing (on the GPU)
     #########################################################################
 
-    debug("Creating an element to do inferencing (PGIE, nvinfer)")
+    print("Creating an element to do inferencing (PGIE, nvinfer)")
 
     # Use nvinfer to run inferencing on decoder's output,
     pgie = Gst.ElementFactory.make("nvinfer", "primary-inference")
@@ -484,13 +478,13 @@ def main(args):
     # Add PGIE to the pipeline, then link streammuux to its input
     pipeline.add(pgie)
     streammux.link(pgie)
-    debug("The PGIE element has been added to the pipeline, and linked")
+    print("The PGIE element has been added to the pipeline, and linked")
 
     #########################################################################
     # The next element in the pipeline converts the output to RGBA format
     #########################################################################
 
-    debug("Creating an element that converts output video to RGBA format")
+    print("Creating an element that converts output video to RGBA format")
 
     # Use convertor to convert from NV12 to RGBA as required by nvosd
     nvvidconv = Gst.ElementFactory.make("nvvideoconvert", "convertor")
@@ -501,13 +495,13 @@ def main(args):
     # Add the convertor to the pipeline, then link pgie to its input
     pipeline.add(nvvidconv)
     pgie.link(nvvidconv)
-    debug("The convertor element has been added to the pipeline, and linked")
+    print("The convertor element has been added to the pipeline, and linked")
 
     #########################################################################
     # At this point in the pipeline, add a "probe" on the `nvvidconv` input
     #########################################################################
 
-    debug("Creating a probe to view the inferencing metadata")
+    print("Creating a probe to view the inferencing metadata")
 
     # This probe will consume the meta data generated by nvinfer
     # and provide it to OSD later.
@@ -529,7 +523,7 @@ def main(args):
     # Next element de-multiplexes the input streams into tiles in one stream
     #########################################################################
 
-    debug("Creating an element to demultiplex the videos into tiles")
+    print("Creating an element to demultiplex the videos into tiles")
 
     tiler = Gst.ElementFactory.make("nvmultistreamtiler", "nvtiler")
     if not tiler:
@@ -549,13 +543,13 @@ def main(args):
         tiler.set_property("nvbuf-memory-type", mem_type)
     pipeline.add(tiler)
     nvvidconv.link(tiler)
-    debug("The demultiplexing/tiling element was added and linked")
+    print("The demultiplexing/tiling element was added and linked")
 
     #########################################################################
     # The next element in the pipeline draws boxes (requires RGBA input)
     #########################################################################
 
-    debug("Creating elements that draw boxes in the output video")
+    print("Creating elements that draw boxes in the output video")
 
     # Create OSD to draw on the converted RGBA buffer
     nvosd = Gst.ElementFactory.make("nvdsosd", "onscreendisplay")
@@ -572,13 +566,13 @@ def main(args):
     pipeline.add(nvvidconv_postosd)
     tiler.link(nvosd)
     nvosd.link(nvvidconv_postosd)
-    debug("The OSD element has been added to the pipeline, and linked")
+    print("The OSD element has been added to the pipeline, and linked")
 
     #########################################################################
     # The next element in the pipeline is a caps filter
     #########################################################################
 
-    debug(
+    print(
         "Creating a caps filter element (to enforce data format restrictions to help maintain stream consistency and processing efficiency)")
 
     # Create a caps filter
@@ -588,21 +582,21 @@ def main(args):
     # Add the caps filter to the pipeline, then link the OSD output to its input
     pipeline.add(caps)
     nvvidconv_postosd.link(caps)
-    debug("The caps filter element has been added to the pipeline, and linked")
+    print("The caps filter element has been added to the pipeline, and linked")
 
     #########################################################################
     # The next element in the pipeline encodes the output (v4l2, h264)
     #########################################################################
 
-    debug("Creating an element that converts output video to H264 for 4VL2")
+    print("Creating an element that converts output video to H264 for 4VL2")
 
     # Make the encoder
     if CODEC == "H264":
         encoder = Gst.ElementFactory.make("nvv4l2h264enc", "encoder")
-        debug("Creating H264 Encoder")
+        print("Creating H264 Encoder")
     elif CODEC == "H265":
         encoder = Gst.ElementFactory.make("nvv4l2h265enc", "encoder")
-        debug("Creating H265 Encoder")
+        print("Creating H265 Encoder")
     if not encoder:
         sys.stderr.write("ERROR: Unable to create encoder")
         sys.exit(1)
@@ -615,21 +609,21 @@ def main(args):
     # Add the V$L2/H264 encoder element to the pipeline, then link the caps filter to it
     pipeline.add(encoder)
     caps.link(encoder)
-    debug("The encoder element has been added to the pipeline, and linked")
+    print("The encoder element has been added to the pipeline, and linked")
 
     #########################################################################
     # The next element in the pipeline encodes the output into RTP packets
     #########################################################################
 
-    debug("Creating an element that encapsulates video into RTP packets for RTSP streaming")
+    print("Creating an element that encapsulates video into RTP packets for RTSP streaming")
 
     # Make the payload-encode video into RTP packets
     if CODEC == "H264":
         rtppay = Gst.ElementFactory.make("rtph264pay", "rtppay")
-        debug("Creating H264 rtppay")
+        print("Creating H264 rtppay")
     elif CODEC == "H265":
         rtppay = Gst.ElementFactory.make("rtph265pay", "rtppay")
-        debug("Creating H265 rtppay")
+        print("Creating H265 rtppay")
     if not rtppay:
         sys.stderr.write("ERROR: Unable to create rtppay")
         sys.exit(1)
@@ -637,14 +631,14 @@ def main(args):
     # Add the RTP packet encoder element to the pipeline, then link the H264 encoder onto it
     pipeline.add(rtppay)
     encoder.link(rtppay)
-    debug("The RTP packet encoder element has been added to the pipeline, and linked")
+    print("The RTP packet encoder element has been added to the pipeline, and linked")
 
     #########################################################################
     # The final "sink element" in the pipeline is the RTSP output stream sink
     #########################################################################
 
     # As an alternative, you could send the output nowhere (the "fake" sink)
-    # debug("Creating FAKE sink")
+    # print("Creating FAKE sink")
     # sink = Gst.ElementFactory.make("fakesink", "nvvideo-renderer")
     # if not sink:
     #    sys.stderr.write("ERROR: Unable to create FAKE sink\n")
@@ -652,14 +646,14 @@ def main(args):
     # sink.set_property("sync", 0)
 
     # As an alternative, you could send the output to the screen
-    # debug("Creating EGLSink")
+    # print("Creating EGLSink")
     # sink = Gst.ElementFactory.make("nveglglessink", "nvvideo-renderer")
     # if not sink:
     #    sys.stderr.write("ERROR: Unable to create egl sink\n")
     #    sys.exit(1)
     # sink.set_property("sync", 0)
 
-    debug("Creating RTSP output stream sink...")
+    print("Creating RTSP output stream sink...")
 
     # The RTSP stream output sink sends to this local multicast UDP port
     # This is received by the GstRtspStreamer instance created below once
@@ -682,14 +676,14 @@ def main(args):
     # Add the RTSP output stream sink element to the pipeline, then link the RTP paket encoder onto it
     pipeline.add(sink)
     rtppay.link(sink)
-    debug("The RTSP output stream element has been added to the pipeline, and linked")
+    print("The RTSP output stream element has been added to the pipeline, and linked")
 
     #########################################################################
     # Pipeline construction is complete! Create the event loop.
     #########################################################################
 
     # create an event loop and feed gstreamer bus mesages to it
-    debug("Creating the event loop...")
+    print("Creating the event loop...")
     loop = GObject.MainLoop()
     bus = pipeline.get_bus()
     bus.add_signal_watch()
@@ -714,7 +708,7 @@ def main(args):
         UDP_MULTICAST_PORT, CODEC))
     factory.set_shared(True)
     server.get_mount_points().add_factory(RTSPOUTPUTPATH, factory)
-    debug("RTSP output stream service is ready")
+    print("RTSP output stream service is ready")
 
     #########################################################################
     # Finally we can start it running...
