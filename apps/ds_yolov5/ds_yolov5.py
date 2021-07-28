@@ -63,21 +63,6 @@ import os
 import time
 import math
 
-
-
-CODEC = get_from_env('CODEC', 'H264')  # Could also be 'H265'
-BITRATE = get_from_env('BITRATE', '4000000')
-RTSPINPUT = get_from_env('RTSPINPUT', '')  # No default, so it's *REQUIRED*
-RTSPOUTPUTPORTNUM = get_from_env('RTSPOUTPUTPORTNUM', '8554')
-RTSPOUTPUTPATH = get_from_env('RTSPOUTPUTPATH', '/ds')  # The output URL's path
-ARCH = get_from_env('ARCH', '')  # No default, so it's *REQUIRED*
-IPADDR = get_from_env('IPADDR', '<IPADDRESS>')  # host LAN IP, if given
-SHOW_FRAMES = 'no' != get_from_env('SHOW_FRAMES', 'yes')  # Default is to show
-OUTPUT_WIDTH = int(get_from_env('OUTPUT_WIDTH', '1200'))  # Output video width
-OUTPUT_HEIGHT = int(get_from_env('OUTPUT_HEIGHT', '600'))  # Output video height
-
-RTSP_INPUTS = RTSPINPUT.split(',')
-
 # The original examples require the code to be run fromn a specific
 # directory, which is inconvenient and error-prone. So I am explicitly
 # manipulating the search path here to remove the working directory
@@ -99,6 +84,13 @@ from common.FPS import GETFPS
 # Import the NVIDIA Deepstream Python bindings
 import pyds
 fps_streams = {}
+CODEC = 'H264' # Could also be 'H265'
+BITRATE = 4000000
+RTSPOUTPUTPORTNUM = 8554
+RTSPOUTPUTPATH = '/ds' # The output URL's path
+SHOW_FRAMES = 'no'  # Default is to show
+OUTPUT_WIDTH =1200 # Output video width
+OUTPUT_HEIGHT = 600 # Output video height
 
 # Debug print on/off (there are better ways to do this)
 def debug(s):
@@ -184,16 +176,6 @@ def create_source_bin(index, uri):
         sys.stderr.write("ERROR: Failed to add ghost pad in source bin")
         sys.exit(1)
     return nbin
-
-
-CODEC = 'H264' # Could also be 'H265'
-BITRATE = 4000000
-RTSPOUTPUTPORTNUM = 8554
-RTSPOUTPUTPATH = '/ds' # The output URL's path
-SHOW_FRAMES = 'no'  # Default is to show
-OUTPUT_WIDTH =1200 # Output video width
-OUTPUT_HEIGHT = 600 # Output video height
-
 
 #
 # This is the "PGIE" inferencing example from the original NVIDIA Deepstream
@@ -384,7 +366,7 @@ def main(args):
 
     for i in range(0, len(args) - 2):
         fps_streams["stream{0}".format(i)] = GETFPS(i)
-    number_sources = len(args) - 2
+    number_of_sources = len(args) - 2
 
     # Initialize GStreamer
     GObject.threads_init()
@@ -458,7 +440,7 @@ def main(args):
     saved_count = {}
 
     # Loop through the provided RTSP input sources
-    for i in range(number_sources):
+    for i in range(number_of_sources):
         os.mkdir(parent_folder_name + "/stream_" + str(i))
         frame_count["stream_" + str(i)] = 0
         saved_count["stream_" + str(i)] = 0
@@ -549,7 +531,6 @@ def main(args):
 
     debug("Creating an element to demultiplex the videos into tiles")
 
-    number_of_sources = len(RTSP_INPUTS)
     tiler = Gst.ElementFactory.make("nvmultistreamtiler", "nvtiler")
     if not tiler:
         sys.stderr.write(" Unable to create tiler \n")
