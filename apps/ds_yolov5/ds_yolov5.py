@@ -68,7 +68,7 @@ import math
 # manipulating the search path here to remove the working directory
 # dependency:
 import sys
-
+sys.path.append('../')
 # I switched the example to use standard temp files
 import tempfile
 
@@ -86,10 +86,10 @@ import pyds
 fps_streams = {}
 CODEC = 'H264' # Could also be 'H265'
 BITRATE = 4000000
-RTSPOUTPUTPORTNUM = 8554
+RTSPOUTPUTPORTNUM = '8554'
 RTSPOUTPUTPATH = '/ds' # The output URL's path
 SHOW_FRAMES = 'no'  # Default is to show
-OUTPUT_WIDTH =1200 # Output video width
+OUTPUT_WIDTH = 1200 # Output video width
 OUTPUT_HEIGHT = 600 # Output video height
 
 # Debug print on/off (there are better ways to do this)
